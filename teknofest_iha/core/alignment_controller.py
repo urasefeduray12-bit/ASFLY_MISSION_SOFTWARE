@@ -22,6 +22,9 @@ class AlignmentController:
         norm_x = max(-1.0, min(1.0, error_x / max(1.0, self.image_width / 2.0)))
         norm_y = max(-1.0, min(1.0, error_y / max(1.0, self.image_height / 2.0)))
         direction = 1.0 if forward_sign >= 0.0 else -1.0
-        vx = -norm_y * self.max_speed_mps * direction
-        vy = -norm_x * self.max_speed_mps * direction
+        
+        # Kamera ve dron yönü 180 derece ters (Kuzey-Güney) olduğu için
+        # eksi işaretleri kaldırıp eksen komutlarını tersine çevirdik.
+        vx = norm_y * self.max_speed_mps * direction
+        vy = norm_x * self.max_speed_mps * direction
         return vx, vy
