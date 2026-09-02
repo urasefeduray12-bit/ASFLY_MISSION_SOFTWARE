@@ -61,7 +61,7 @@ Gorev:
 - Gorev state machine'i calistirir.
 - Takeoff, arama, hizalanma, dogrulama, payload release, climb ve RTL kararlarini
   verir.
-- Fusion hedeflerini mission hedef sirasi ile birlestirir.
+- Fusion hedeflerini mission hedef sirasi ile birlestirir. Bune
 
 Girdi:
 
