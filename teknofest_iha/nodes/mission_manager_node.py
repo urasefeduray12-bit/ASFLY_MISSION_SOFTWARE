@@ -60,6 +60,7 @@ class MissionManagerNode(Node):
         self.declare_parameter("search_y_max", 15.0)
         self.declare_parameter("payload_dry_run", True)
         self.declare_parameter("payload_servo", 9)
+        self.declare_parameter("payload_servo_map_json", '{"blue_square":9,"red_square":10}')
         self.declare_parameter("payload_pwm", 1900)
         self.declare_parameter("payload_reset_pwm", 1100)
         self.declare_parameter("payload_hold_seconds", 0.8)
@@ -83,6 +84,7 @@ class MissionManagerNode(Node):
         self.restore_altitude_tolerance_m = float(self.get_parameter("restore_altitude_tolerance_m").value)
         self.search_acceptance_radius_m = float(self.get_parameter("search_acceptance_radius_m").value)
         self.payload_dry_run = bool(self.get_parameter("payload_dry_run").value)
+        self.payload_servo_by_target = self._load_payload_servo_map()
         self.state_machine = MissionStateMachine(
             takeoff_altitude_m=self.takeoff_altitude_m,
             altitude_tolerance_m=float(self.get_parameter("altitude_tolerance_m").value),
@@ -183,6 +185,20 @@ class MissionManagerNode(Node):
                 size_y=float(size[1]),
             )
         return specs
+
+    def _load_payload_servo_map(self) -> dict[str, int]:
+        raw = str(self.get_parameter("payload_servo_map_json").value)
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"payload_servo_map_json must be valid JSON: {exc}") from exc
+        if not isinstance(data, dict):
+            raise ValueError("payload_servo_map_json must be a JSON object")
+        return {str(target_type): int(servo) for target_type, servo in data.items()}
+
+    def _payload_servo_for_target(self, target_type: str) -> int:
+        fallback_servo = int(self.get_parameter("payload_servo").value)
+        return self.payload_servo_by_target.get(target_type, fallback_servo)
 
     def on_timer(self) -> None:
         if not self.mission_started:
@@ -355,7 +371,7 @@ class MissionManagerNode(Node):
                     "drop_payload",
                     target_type=active_target,
                     dry_run=self.payload_dry_run,
-                    servo=int(self.get_parameter("payload_servo").value),
+                    servo=self._payload_servo_for_target(active_target),
                     pwm=int(self.get_parameter("payload_pwm").value),
                     reset_pwm=int(self.get_parameter("payload_reset_pwm").value),
                     hold_seconds=float(self.get_parameter("payload_hold_seconds").value),

@@ -232,7 +232,7 @@ Ornek payload release:
   "command": "drop_payload",
   "target_type": "blue_square",
   "dry_run": true,
-  "servo": 9,
+  "servo": 11,
   "pwm": 1900,
   "reset_pwm": 1100,
   "hold_seconds": 0.8,

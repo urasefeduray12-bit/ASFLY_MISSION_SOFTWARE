@@ -79,6 +79,7 @@ Kontroller:
 - `align_max_speed_mps`
 - `center_tolerance_px`
 - `payload_servo`
+- `payload_servo_map_json`
 - `payload_pwm`
 - `payload_reset_pwm`
 - `coordinate_frame`
@@ -118,7 +119,8 @@ Gercek servo icin config:
 
 ```yaml
 payload_dry_run: false
-payload_servo: 9
+payload_servo: 11
+payload_servo_map_json: '{"blue_square":11,"red_square":12}'
 payload_pwm: 1900
 payload_reset_pwm: 1100
 payload_hold_seconds: 0.8
@@ -217,7 +219,7 @@ Belirti:
 Cozum:
 
 - Mission Planner servo output test.
-- `payload_servo`, `payload_pwm`, `payload_reset_pwm`.
+- `payload_servo_map_json`, `payload_pwm`, `payload_reset_pwm`.
 
 ### Geofence yanlis saha
 

@@ -27,10 +27,11 @@ mission_manager_node:
     search_y_min: -12.0
     search_y_max: 12.0
     payload_dry_run: true
-    payload_servo: 9
-    payload_pwm: 1900
-    payload_reset_pwm: 1100
-    payload_hold_seconds: 0.8
+    payload_servo: 11
+    payload_servo_map_json: '{"blue_square":11,"red_square":12}'
+    payload_pwm: 1000
+    payload_reset_pwm: 1900
+    payload_hold_seconds: 1
     coordinate_frame: gazebo_xy_swapped
     target_specs_json: '{"red_square":{"center":[76.93,-10.94],"size":[1.0,1.0]},"blue_square":{"center":[31.42,-5.72],"size":[2.0,2.0]}}'
 

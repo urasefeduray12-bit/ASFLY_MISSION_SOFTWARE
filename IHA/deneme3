@@ -1,0 +1,495 @@
+import cv2
+import numpy as np
+import asyncio
+import time
+import logging
+from dataclasses import dataclass
+from typing import Optional, Tuple
+from ultralytics import YOLO
+from mavsdk import System
+from mavsdk.offboard import OffboardError, VelocityBodyYawspeed
+
+# ─── Loglama ──────────────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+log = logging.getLogger(__name__)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# AYARLAR — sadece bu blogu duzenle
+# ══════════════════════════════════════════════════════════════════════════════
+GERCEK_DRONE    = True                  # True → gercek MAVSDK, False → mock
+DRONE_ADRES     = "udpin://10.94.181.89:14540"            # PX4 SITL | degistir gerekirse
+
+KP_X            = 0.002
+KP_Y            = 0.002
+MAX_SPEED       = 2.0                       # m/s
+INIS_ALAN_ESIK  = 55_000                    # piksel² — bu alandan buyukse inis
+MERKEZ_TOLERANS = 30                        # px — merkeze bu kadar yakinda inis
+MAX_KAYIP       = 10                        # kac frame kayip sonra takip durur
+OF_MAX_ZIPLA    = 150                       # optik akis max sapma (piksel)
+
+YOLO_MODEL_YOL      = "yolov8n.pt"         # nano model — en hizli
+YOLO_CONF           = 0.45
+YOLO_IMG_BOYUT      = 320                  # kucuk giris → hiz artar
+YOLO_HER_N_KARE     = 2                    # her N karede bir inference
+YOLO_HEDEF_SINIFLAR = {73, 62, 63, 67}     # book, tv, laptop, cell phone (COCO)
+
+LK_PARAMS = dict(
+    winSize  = (15, 15),
+    maxLevel = 2,
+    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 20, 0.03)
+)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+# ─── Veri Sinifi ──────────────────────────────────────────────────────────────
+@dataclass
+class HedefBilgi:
+    cx:     int
+    cy:     int
+    alan:   float
+    kaynak: str
+    bbox:   Optional[Tuple[int, int, int, int]] = None   # x1,y1,x2,y2
+
+
+# ─── Renk + Sekil Tespiti ─────────────────────────────────────────────────────
+def renk_ve_sekil_tespit(frame: np.ndarray) -> Optional[HedefBilgi]:
+    """
+    HSV renk filtresi ile kirmizi kare/dikdortgen tespit eder.
+    YOLO'nun gormedigi ozel renkli hedefler icin fallback.
+    """
+    blurred = cv2.GaussianBlur(frame, (9, 9), 0)
+    hsv     = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    mask1 = cv2.inRange(hsv, np.array([0,   150, 70]), np.array([8,   255, 255]))
+    mask2 = cv2.inRange(hsv, np.array([170, 150, 70]), np.array([180, 255, 255]))
+    mask  = cv2.bitwise_or(mask1, mask2)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+    mask   = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    en_buyuk, en_buyuk_alan = None, 0
+    for c in contours:
+        alan = cv2.contourArea(c)
+        if alan < 3000:
+            continue
+        peri   = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+        if len(approx) == 4 or alan > 15000:
+            if alan > en_buyuk_alan:
+                en_buyuk, en_buyuk_alan = c, alan
+
+    if en_buyuk is None:
+        return None
+
+    M = cv2.moments(en_buyuk)
+    if M["m00"] == 0:
+        return None
+
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+    x, y, w, h = cv2.boundingRect(en_buyuk)
+
+    cv2.drawContours(frame, [en_buyuk], -1, (0, 255, 0), 2)
+    cv2.circle(frame, (cx, cy), 6, (255, 255, 255), -1)
+    cv2.putText(frame, "RENK HEDEF", (cx - 20, cy - 15),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+    return HedefBilgi(cx=cx, cy=cy, alan=en_buyuk_alan,
+                      kaynak="RENK", bbox=(x, y, x + w, y + h))
+
+
+# ─── YOLO Dedektoru ───────────────────────────────────────────────────────────
+class YOLODedektoru:
+    """
+    YOLOv8n ile kare nesne tespiti.
+    RPi 5'te ~15-20ms/kare (320px giris, nano model).
+    Her N karede bir calisarak efektif FPS'i korur.
+    """
+
+    def __init__(self, model_yol: str = YOLO_MODEL_YOL):
+        log.info(f"YOLO modeli yukleniyor: {model_yol}")
+        self.model     = YOLO(model_yol, verbose=False)
+        self.kare_no   = 0
+        self.son_sonuc: Optional[HedefBilgi] = None
+        log.info("YOLO hazir.")
+
+    def tespit_et(self, frame: np.ndarray) -> Optional[HedefBilgi]:
+        """Her YOLO_HER_N_KARE karede bir inference yapar."""
+        self.kare_no += 1
+        if self.kare_no % YOLO_HER_N_KARE != 0:
+            return self.son_sonuc
+
+        results = self.model.predict(
+            frame,
+            imgsz    = YOLO_IMG_BOYUT,
+            conf     = YOLO_CONF,
+            verbose  = False,
+            classes  = list(YOLO_HEDEF_SINIFLAR)
+        )
+
+        en_buyuk_alan = 0
+        hedef: Optional[HedefBilgi] = None
+
+        for r in results:
+            for box in r.boxes:
+                cls_id = int(box.cls[0])
+                if cls_id not in YOLO_HEDEF_SINIFLAR:
+                    continue
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                alan = (x2 - x1) * (y2 - y1)
+                oran = (x2 - x1) / max((y2 - y1), 1)
+                if not (0.4 < oran < 2.5):
+                    continue
+                if alan > en_buyuk_alan:
+                    en_buyuk_alan = alan
+                    cx = (x1 + x2) // 2
+                    cy = (y1 + y2) // 2
+                    hedef = HedefBilgi(cx=cx, cy=cy, alan=alan,
+                                      kaynak="YOLO", bbox=(x1, y1, x2, y2))
+
+        # YOLO bulamazsa renk tespitini dene
+        if hedef is None:
+            hedef = renk_ve_sekil_tespit(frame)
+
+        # YOLO tespitini gorsellestir
+        if hedef and hedef.bbox and hedef.kaynak == "YOLO":
+            x1, y1, x2, y2 = hedef.bbox
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 200, 255), 2)
+            cv2.putText(frame, f"YOLO ({hedef.alan:.0f}px2)",
+                        (x1, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255), 1)
+
+        self.son_sonuc = hedef
+        return hedef
+
+
+# ─── Hedef Takipci (Kalman + Optik Akis) ─────────────────────────────────────
+class HedefTakipci:
+    """
+    Kalman Filtresi ile pozisyon tahmini.
+    Lucas-Kanade Optik Akis ile YOLO kayip aninda kisa sureli takip.
+    Fuzyon onceligi: YOLO > Renk > Optik Akis > Kalman Tahmini
+    """
+
+    def __init__(self):
+        self.kalman = cv2.KalmanFilter(4, 2)
+        self.kalman.measurementMatrix   = np.array([[1,0,0,0],[0,1,0,0]], np.float32)
+        self.kalman.transitionMatrix    = np.array([[1,0,1,0],[0,1,0,1],
+                                                     [0,0,1,0],[0,0,0,1]], np.float32)
+        self.kalman.processNoiseCov     = np.eye(4, dtype=np.float32) * 0.05
+        self.kalman.measurementNoiseCov = np.eye(2, dtype=np.float32) * 1.0
+
+        self._tahmin_cache   = None     # kare basina tek predict() icin onbellek
+        self.onceki_gri      = None
+        self.onceki_noktalar = None
+        self.takip_aktif     = False
+        self.kayip_sayac     = 0
+        self.son_alan        = 0.0
+
+    # ── Kalman ────────────────────────────────────────────────────────────────
+    def kalman_tahmin(self) -> Tuple[int, int]:
+        """Onbellekli — ayni karede kac kez cagirilsa da filtreyi bozmaz."""
+        if self._tahmin_cache is None:
+            t = self.kalman.predict()
+            self._tahmin_cache = (int(t[0].item()), int(t[1].item()))
+        return self._tahmin_cache
+
+    def kalman_guncelle(self, cx: int, cy: int):
+        self.kalman.correct(np.array([[np.float32(cx)], [np.float32(cy)]]))
+        self.takip_aktif     = True
+        self.kayip_sayac     = 0
+        self._tahmin_cache   = None     # sonraki karede yeniden hesapla
+
+    # ── Optik Akis ────────────────────────────────────────────────────────────
+    def optik_akis_guncelle(self, gri: np.ndarray) -> Optional[Tuple[int, int]]:
+        """
+        Her karede cagirilmali (YOLO bulsa da!).
+        onceki_gri her zaman guncel kalmali — bu kritik duzeltme.
+        """
+        if self.onceki_gri is None:
+            self.onceki_gri = gri.copy()
+            return None
+
+        if self.onceki_noktalar is None or not self.takip_aktif:
+            self.onceki_gri = gri.copy()   # yine de guncelle
+            return None
+
+        yeni_pts, durum, _ = cv2.calcOpticalFlowPyrLK(
+            self.onceki_gri, gri, self.onceki_noktalar, None, **LK_PARAMS
+        )
+        self.onceki_gri = gri.copy()       # her durumda guncelle
+
+        if yeni_pts is None or durum is None:
+            return None
+
+        iyi = durum.ravel() == 1
+        if not np.any(iyi):
+            return None
+
+        iyi_pts = yeni_pts[iyi].reshape(-1, 2)
+        merkez  = iyi_pts.mean(axis=0)
+
+        # Sanity check: Kalman tahmininden cok uzaksa reddet
+        kx, ky = self.kalman_tahmin()
+        if np.hypot(merkez[0] - kx, merkez[1] - ky) > OF_MAX_ZIPLA:
+            return None
+
+        self.onceki_noktalar = iyi_pts.reshape(-1, 1, 2)
+        return int(merkez[0].item()), int(merkez[1].item())
+
+    def noktalari_ayarla(self, bbox: Tuple[int, int, int, int], gri: np.ndarray):
+        """Yeni hedef bulununca bbox icinden takip noktalarini sec."""
+        x1, y1, x2, y2 = bbox
+        mask = np.zeros(gri.shape, dtype=np.uint8)
+        cv2.rectangle(mask, (x1, y1), (x2, y2), 255, -1)
+        pts = cv2.goodFeaturesToTrack(
+            gri, maxCorners=40, qualityLevel=0.1, minDistance=5, mask=mask
+        )
+        self.onceki_noktalar = pts
+        self.onceki_gri      = gri.copy()
+
+    def kayip_artir(self) -> bool:
+        """False donerse takip bitti."""
+        self.kayip_sayac += 1
+        if self.kayip_sayac > MAX_KAYIP:
+            self.takip_aktif     = False
+            self.onceki_noktalar = None
+            log.warning("Hedef kayboldu — takip durduruldu.")
+            return False
+        return True
+
+
+# ─── Mock Drone Kontrolcusu ───────────────────────────────────────────────────
+class MockDroneController:
+    """Gercek donanim olmadan masaustu testleri icin."""
+
+    async def baglan(self):
+        log.info("Mock Drone: Baglandi.")
+
+    async def kalkis(self):
+        log.info("Mock Drone: Kalkis.")
+
+    async def hedefe_git(self, error_x: float, error_y: float, alan: float):
+        vx = float(np.clip(KP_Y * error_y, -MAX_SPEED, MAX_SPEED))
+        vy = float(np.clip(KP_X * error_x, -MAX_SPEED, MAX_SPEED))
+        log.debug(f"Hareket ileri:{vx:+.2f} sag:{vy:+.2f} alan:{alan:.0f}")
+
+    async def hover(self):
+        pass
+
+    async def inis(self):
+        log.info("Mock Drone: Inis.")
+
+
+# ─── Gercek Drone Kontrolcusu (MAVSDK) ───────────────────────────────────────
+class RealDroneController:
+    """
+    MAVSDK ile gercek/simulasyon drone baglantisi.
+    Offboard modunda velocity-body komutu gonderir.
+    """
+
+    def __init__(self, adres: str = DRONE_ADRES):
+        self.drone           = System()
+        self.adres           = adres
+        self._offboard_aktif = False
+
+    async def baglan(self):
+        log.info(f"Drone baglanıyor: {self.adres}")
+        await self.drone.connect(system_address=self.adres)
+
+        log.info("Baglanti bekleniyor...")
+        async for state in self.drone.core.connection_state():
+            if state.is_connected:
+                log.info("Drone baglandi.")
+                break
+
+    async def kalkis(self):
+        log.info("Saglik kontrolu bekleniyor...")
+        async for health in self.drone.telemetry.health():
+            gps_ok  = health.is_global_position_ok
+            home_ok = health.is_home_position_ok
+            log.info(f"  GPS: {'OK' if gps_ok else 'BEKLENIYOR'}  "
+                     f"Home: {'OK' if home_ok else 'BEKLENIYOR'}")
+            if gps_ok and home_ok:
+                break
+
+        log.info("Arm ediliyor...")
+        await self.drone.action.arm()
+        log.info("Arm basarili.")
+
+        log.info("Kalkis yapiliyor...")
+        await self.drone.action.takeoff()
+        await asyncio.sleep(5)
+
+        # Offboard mod icin ilk komut zorunlu
+        await self.drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0)
+        )
+        try:
+            await self.drone.offboard.start()
+            self._offboard_aktif = True
+            log.info("Offboard mod aktif.")
+        except OffboardError as e:
+            log.error(f"Offboard baslatılamadi: {e}")
+
+    async def hedefe_git(self, error_x: float, error_y: float, alan: float):
+        if not self._offboard_aktif:
+            return
+        vx = float(np.clip(KP_Y * error_y, -MAX_SPEED, MAX_SPEED))
+        vy = float(np.clip(KP_X * error_x, -MAX_SPEED, MAX_SPEED))
+        await self.drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(vx, vy, 0.0, 0.0)
+        )
+
+    async def hover(self):
+        if not self._offboard_aktif:
+            return
+        await self.drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0)
+        )
+
+    async def inis(self):
+        log.info("Inis yapiliyor...")
+        if self._offboard_aktif:
+            try:
+                await self.drone.offboard.stop()
+            except OffboardError:
+                pass
+        await self.drone.action.land()
+        log.info("Inis komutu gonderildi.")
+
+
+# ─── Ana Dongu ────────────────────────────────────────────────────────────────
+async def main():
+    # ── Drone sec ─────────────────────────────────────────────────────────────
+    if GERCEK_DRONE:
+        drone = RealDroneController(DRONE_ADRES)
+        log.info(f"Mod: GERCEK DRONE ({DRONE_ADRES})")
+    else:
+        drone = MockDroneController()
+        log.info("Mod: MOCK (simulasyon)")
+
+    await drone.baglan()
+    await drone.kalkis()
+
+    # ── Kamera ────────────────────────────────────────────────────────────────
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        log.error("Kamera acilamadi! VideoCapture(0) basarisiz.")
+        return
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH,  640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FPS,          30)
+
+    dedektoru = YOLODedektoru(YOLO_MODEL_YOL)
+    takipci   = HedefTakipci()
+
+    inis_basladi = False
+    fps_zamani   = time.time()
+    fps_sayac    = 0
+    fps_goster   = 0.0
+
+    log.info("Sistem basladi. Kareye kirmizi/kare nesne gosterin. Cikis: Q")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            log.warning("Kare okunamadi — kamera hatasi veya akis bitti.")
+            break
+
+        frame_h, frame_w = frame.shape[:2]
+        merkez_x, merkez_y = frame_w // 2, frame_h // 2
+        gri = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # ── FPS Sayaci ────────────────────────────────────────────────────────
+        fps_sayac += 1
+        gecen = time.time() - fps_zamani
+        if gecen >= 1.0:
+            fps_goster = fps_sayac / gecen
+            fps_sayac  = 0
+            fps_zamani = time.time()
+
+        # ── Optik Akis: Her karede once cagir ────────────────────────────────
+        of_sonuc = takipci.optik_akis_guncelle(gri)
+
+        # ── YOLO + Renk Tespiti ───────────────────────────────────────────────
+        yolo_hedef = dedektoru.tespit_et(frame)
+
+        # ── Fuzyon ───────────────────────────────────────────────────────────
+        hedef: Optional[HedefBilgi] = None
+
+        if yolo_hedef:
+            hedef = yolo_hedef
+            takipci.kalman_guncelle(hedef.cx, hedef.cy)
+            if hedef.bbox:
+                takipci.noktalari_ayarla(hedef.bbox, gri)
+            if hedef.alan > 0:
+                takipci.son_alan = hedef.alan
+
+        elif of_sonuc and takipci.takip_aktif:
+            hedef = HedefBilgi(cx=of_sonuc[0], cy=of_sonuc[1],
+                               alan=takipci.son_alan, kaynak="OPTIK AKIS")
+            takipci.kalman_guncelle(hedef.cx, hedef.cy)
+            takipci.kayip_artir()
+
+        elif takipci.takip_aktif:
+            if takipci.kayip_artir():
+                kx, ky = takipci.kalman_tahmin()
+                hedef = HedefBilgi(cx=kx, cy=ky,
+                                   alan=takipci.son_alan, kaynak="KALMAN")
+
+        # ── Kontrol & Inis Mantigi ────────────────────────────────────────────
+        if hedef:
+            tx, ty  = takipci.kalman_tahmin()
+            error_x = tx - merkez_x
+            error_y = ty - merkez_y
+
+            if (hedef.alan >= INIS_ALAN_ESIK
+                    and abs(error_x) < MERKEZ_TOLERANS
+                    and abs(error_y) < MERKEZ_TOLERANS
+                    and not inis_basladi):
+                log.info(f"INIS KOSULU SAGLANDI — Alan:{hedef.alan:.0f} "
+                         f"Err:({error_x},{error_y})")
+                inis_basladi = True
+                await drone.inis()
+                break
+
+            await drone.hedefe_git(error_x, error_y, hedef.alan)
+
+            cv2.circle(frame, (hedef.cx, hedef.cy), 7, (255, 255, 255), -1)
+            cv2.circle(frame, (tx, ty), 10, (255, 0, 255), 2)
+            cv2.line(frame, (merkez_x, merkez_y), (tx, ty), (0, 0, 255), 2)
+            cv2.putText(frame,
+                f"{hedef.kaynak} | Err:({error_x:+d},{error_y:+d}) Alan:{hedef.alan:.0f}",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2)
+
+        # ── HUD ───────────────────────────────────────────────────────────────
+        cv2.circle(frame, (merkez_x, merkez_y), 5, (0, 255, 255), -1)
+        cv2.putText(frame, f"FPS: {fps_goster:.1f}",
+                    (frame_w - 120, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+        durum_yazi  = "INIS!" if inis_basladi else "HEDEF BEKLENIYOR"
+        durum_renk  = (0, 0, 255) if inis_basladi else (0, 165, 255)
+        cv2.putText(frame, durum_yazi,
+                    (10, frame_h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, durum_renk, 2)
+
+        cv2.imshow("Drone Takip", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            log.info("Kullanici cikisi.")
+            await drone.inis()
+            break
+
+        await asyncio.sleep(0.001)
+
+    cap.release()
+    cv2.destroyAllWindows()
+    log.info("Sistem kapatildi.")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+

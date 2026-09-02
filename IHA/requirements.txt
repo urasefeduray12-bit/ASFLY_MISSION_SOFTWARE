@@ -1,0 +1,6 @@
+numpy>=1.23.5
+opencv-python>=4.8.0
+# Eğer CSRT tracker kullanacaksanız (Pi 5'te önerilir), opencv-contrib gereklidir:
+opencv-contrib-python>=4.8.0
+# ONNX modellerini CPU üzerinde koşturmak için (YOLOv8n için):
+onnxruntime>=1.15.0

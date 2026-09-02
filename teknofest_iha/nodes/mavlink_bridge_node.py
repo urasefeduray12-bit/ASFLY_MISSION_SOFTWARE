@@ -111,7 +111,7 @@ class MavlinkBridgeNode(Node):
         if bool(data.get("dry_run", True)):
             self.status_pub.publish(String(data=json.dumps({"status": "DROP_DRY_RUN", "target": data.get("target_type")})))
             return
-        self._call(lambda: self.adapter.drop_payload(int(data["servo"]), int(data["pwm"]), float(data.get("hold_seconds", 0.8)), data.get("reset_pwm")))
+        self._call(lambda: self.adapter.drop_payload(int(data["servo"]), int(data["pwm"]), float(data.get("hold_seconds", 1)), data.get("reset_pwm")))
 
     def _call(self, fn) -> None:
         if self.adapter is None:
