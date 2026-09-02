@@ -1,0 +1,13 @@
+fusion_node:
+  ros__parameters:
+    raw_detections_topic: /perception/raw_detections
+    target_topic: /fusion/target
+    status_topic: /fusion/status
+    primary_target: blue_square
+    secondary_targets:
+      - red_square
+    yolo_every_search: 5
+    yolo_every_candidate: 1
+    yolo_every_tracking: 10
+    yolo_every_unstable: 3
+    yolo_every_locked: 10

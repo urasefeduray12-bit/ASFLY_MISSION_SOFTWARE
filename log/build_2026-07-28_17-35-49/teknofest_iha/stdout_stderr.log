@@ -1,0 +1,51 @@
+running develop
+running egg_info
+creating teknofest_iha.egg-info
+writing teknofest_iha.egg-info/PKG-INFO
+writing dependency_links to teknofest_iha.egg-info/dependency_links.txt
+writing entry points to teknofest_iha.egg-info/entry_points.txt
+writing requirements to teknofest_iha.egg-info/requires.txt
+writing top-level names to teknofest_iha.egg-info/top_level.txt
+writing manifest file 'teknofest_iha.egg-info/SOURCES.txt'
+reading manifest file 'teknofest_iha.egg-info/SOURCES.txt'
+writing manifest file 'teknofest_iha.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/python3.12/site-packages/teknofest-iha.egg-link (link to .)
+Installing camera_frame_repeater_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing debug_viewer_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing fusion_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mavlink_bridge_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_console_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_manager_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_video_recorder_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing perception_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing safety_monitor_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+
+Installed /home/omer/teknofest_iha_2_gorev/build/teknofest_iha
+running symlink_data
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/ament_index
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/ament_index/resource_index
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/ament_index/resource_index/packages
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/resource/teknofest_iha -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/ament_index/resource_index/packages
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/package.xml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/config/mission.yaml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/config/perception.yaml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/config/fusion.yaml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/config/mavlink.yaml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/config/mavlink_gcs_router.yaml -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/config
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/perception.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/mission.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/field_mission.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/full_sim.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/camera_bridge.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/record_mission.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/launch/obs_recording.launch.py -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/launch
+creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/UNIX_MODULAR_ARCHITECTURE.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/TOPICS_AND_CONTRACTS.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/STATE_MACHINES.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/CODE_REFERENCE.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/REAL_UAV_READINESS_CHECKLIST.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs
+symbolically linking /home/omer/teknofest_iha_2_gorev/build/teknofest_iha/docs/GCS_MAVLINK_INTEGRATION.md -> /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/share/teknofest_iha/docs

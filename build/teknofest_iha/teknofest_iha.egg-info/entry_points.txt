@@ -1,0 +1,10 @@
+[console_scripts]
+camera_frame_repeater_node = teknofest_iha.nodes.camera_frame_repeater_node:main
+debug_viewer_node = teknofest_iha.nodes.debug_viewer_node:main
+fusion_node = teknofest_iha.nodes.fusion_node:main
+mavlink_bridge_node = teknofest_iha.nodes.mavlink_bridge_node:main
+mission_console_node = teknofest_iha.nodes.mission_console_node:main
+mission_manager_node = teknofest_iha.nodes.mission_manager_node:main
+mission_video_recorder_node = teknofest_iha.nodes.mission_video_recorder_node:main
+perception_node = teknofest_iha.nodes.perception_node:main
+safety_monitor_node = teknofest_iha.nodes.safety_monitor_node:main

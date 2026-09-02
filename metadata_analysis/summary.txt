@@ -1,0 +1,45 @@
+ASFLY metadata analysis
+=======================
+model: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\models_archive\target_square_yolov8n_320_baseline_20260528_220214_best.pt
+dataset: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\ds_final_target_square
+split: test
+total: 4199
+has_target: 3620
+hit: 3620
+miss: 0
+false_positive: 7
+overall_recall: 1.0
+false_positive_rate_on_all: 0.0017
+
+Groups:
+- bbox_size_bucket=large: total=1474 has_target=1474 hit=1474 recall=1.0 fp=0 fp_rate=0.0
+- bbox_size_bucket=medium: total=1303 has_target=1303 hit=1303 recall=1.0 fp=0 fp_rate=0.0
+- bbox_size_bucket=none: total=579 has_target=0 hit=0 recall=None fp=7 fp_rate=0.0121
+- bbox_size_bucket=small: total=621 has_target=621 hit=621 recall=1.0 fp=0 fp_rate=0.0
+- bbox_size_bucket=very_small: total=222 has_target=222 hit=222 recall=1.0 fp=0 fp_rate=0.0
+- blur_level=light: total=446 has_target=420 hit=420 recall=1.0 fp=0 fp_rate=0.0
+- blur_level=medium: total=150 has_target=150 hit=150 recall=1.0 fp=0 fp_rate=0.0
+- blur_level=none: total=3603 has_target=3050 hit=3050 recall=1.0 fp=7 fp_rate=0.0019
+- exposure_level=mild_over: total=451 has_target=428 hit=428 recall=1.0 fp=1 fp_rate=0.0022
+- exposure_level=none: total=3000 has_target=2540 hit=2540 recall=1.0 fp=3 fp_rate=0.001
+- exposure_level=normal: total=748 has_target=652 hit=652 recall=1.0 fp=3 fp_rate=0.004
+- glare_level=medium: total=120 has_target=120 hit=120 recall=1.0 fp=0 fp_rate=0.0
+- glare_level=none: total=4079 has_target=3500 hit=3500 recall=1.0 fp=7 fp_rate=0.0017
+- has_target=false: total=579 has_target=0 hit=0 recall=None fp=7 fp_rate=0.0121
+- has_target=true: total=3620 has_target=3620 hit=3620 recall=1.0 fp=0 fp_rate=0.0
+- lighting_type=blur_light: total=120 has_target=120 hit=120 recall=1.0 fp=0 fp_rate=0.0
+- lighting_type=glare: total=120 has_target=120 hit=120 recall=1.0 fp=0 fp_rate=0.0
+- lighting_type=none: total=3000 has_target=2540 hit=2540 recall=1.0 fp=3 fp_rate=0.001
+- lighting_type=normal: total=426 has_target=360 hit=360 recall=1.0 fp=3 fp_rate=0.007
+- lighting_type=shadow: total=270 has_target=240 hit=240 recall=1.0 fp=0 fp_rate=0.0
+- lighting_type=sunny: total=263 has_target=240 hit=240 recall=1.0 fp=1 fp_rate=0.0038
+- shadow_level=light: total=76 has_target=76 hit=76 recall=1.0 fp=0 fp_rate=0.0
+- shadow_level=medium: total=246 has_target=216 hit=216 recall=1.0 fp=0 fp_rate=0.0
+- shadow_level=none: total=3877 has_target=3328 hit=3328 recall=1.0 fp=7 fp_rate=0.0018
+- source_stage=stage1: total=400 has_target=360 hit=360 recall=1.0 fp=0 fp_rate=0.0
+- source_stage=stage2: total=1600 has_target=1280 hit=1280 recall=1.0 fp=3 fp_rate=0.0019
+- source_stage=stage3: total=1000 has_target=900 hit=900 recall=1.0 fp=0 fp_rate=0.0
+- source_stage=stage4: total=1199 has_target=1080 hit=1080 recall=1.0 fp=4 fp_rate=0.0033
+- target_color=blue: total=1811 has_target=1811 hit=1811 recall=1.0 fp=0 fp_rate=0.0
+- target_color=none: total=579 has_target=0 hit=0 recall=None fp=7 fp_rate=0.0121
+- target_color=red: total=1809 has_target=1809 hit=1809 recall=1.0 fp=0 fp_rate=0.0

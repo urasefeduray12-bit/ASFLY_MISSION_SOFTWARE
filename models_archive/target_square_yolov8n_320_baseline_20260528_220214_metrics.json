@@ -1,0 +1,52 @@
+{
+  "run_name": "target_square_yolov8n_320_baseline_20260528_220214",
+  "created_at": "2026-05-29T03:27:38",
+  "save_dir": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\runs_singleclass\\target_square_yolov8n_320_baseline_20260528_220214",
+  "best_pt": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\runs_singleclass\\target_square_yolov8n_320_baseline_20260528_220214\\weights\\best.pt",
+  "last_pt": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\runs_singleclass\\target_square_yolov8n_320_baseline_20260528_220214\\weights\\last.pt",
+  "val_metrics": {
+    "metrics/precision(B)": 0.9990527961442665,
+    "metrics/recall(B)": 1.0,
+    "metrics/mAP50(B)": 0.9949112526211067,
+    "metrics/mAP50-95(B)": 0.9926664245098451,
+    "fitness": 0.9926664245098451,
+    "box_mp": 0.9990527961442665,
+    "box_mr": 1.0,
+    "box_map50": 0.9949112526211067,
+    "box_map": 0.9926664245098451,
+    "box_map75": 0.9949112526211067
+  },
+  "test_metrics": {
+    "metrics/precision(B)": 0.998853895239132,
+    "metrics/recall(B)": 1.0,
+    "metrics/mAP50(B)": 0.9948968074948479,
+    "metrics/mAP50-95(B)": 0.9916695580660179,
+    "fitness": 0.9916695580660179,
+    "box_mp": 0.998853895239132,
+    "box_mr": 1.0,
+    "box_map50": 0.9948968074948479,
+    "box_map": 0.9916695580660179,
+    "box_map75": 0.9948968074948479
+  },
+  "dataset_counts": {
+    "train": {
+      "images": 33601,
+      "labels": 33601
+    },
+    "val": {
+      "images": 4200,
+      "labels": 4200
+    },
+    "test": {
+      "images": 4199,
+      "labels": 4199
+    }
+  },
+  "hardware": {
+    "device_summary": "CUDA: NVIDIA GeForce RTX 4050 Laptop GPU",
+    "torch_version": "2.5.1+cu121",
+    "cuda_available": true,
+    "cuda_device_count": 1,
+    "cuda_device_name": "NVIDIA GeForce RTX 4050 Laptop GPU"
+  }
+}

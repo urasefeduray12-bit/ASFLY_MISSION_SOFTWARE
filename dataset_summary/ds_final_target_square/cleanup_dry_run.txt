@@ -1,0 +1,7 @@
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage2_field_clean_v2_preview
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage3_field_blur_clean_motion_v2_preview
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage4_field_sun_shadow_controlled_v2_preview
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage1_shape_basic\preview_grid.jpg
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage2_field_clean_v2_preview\preview_grid.jpg
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage3_field_blur_clean_motion_v2_preview\preview_grid.jpg
+would exclude from training source: C:\Users\byrm\Desktop\python projeleri\asfly_projem\singleclass_curriculum\datasets\final_sources_42k\ds_stage4_field_sun_shadow_controlled_v2_preview\preview_grid.jpg

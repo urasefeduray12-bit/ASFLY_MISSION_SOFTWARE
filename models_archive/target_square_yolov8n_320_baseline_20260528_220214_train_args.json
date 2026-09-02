@@ -1,0 +1,48 @@
+{
+  "data": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\datasets\\ds_final_target_square\\data.yaml",
+  "model": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\yolov8n.pt",
+  "imgsz": 320,
+  "epochs": 60,
+  "batch": 8,
+  "patience": 15,
+  "workers": 2,
+  "project": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\runs_singleclass",
+  "name": "target_square_yolov8n_320_baseline",
+  "device": "0",
+  "resume": "",
+  "seed": 42,
+  "dry_check": false,
+  "no_timestamp": false,
+  "cache": false,
+  "mosaic": 0.4,
+  "close_mosaic": 10,
+  "hsv_h": 0.005,
+  "hsv_s": 0.25,
+  "hsv_v": 0.2,
+  "degrees": 3.0,
+  "translate": 0.05,
+  "scale": 0.2,
+  "fliplr": 0.5,
+  "flipud": 0.0,
+  "predict_conf": 0.25,
+  "resolved_run_name": "target_square_yolov8n_320_baseline_20260528_220214",
+  "created_at": "2026-05-29T03:27:38",
+  "dataset_context": {
+    "data_yaml": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\datasets\\ds_final_target_square\\data.yaml",
+    "dataset_root": "C:\\Users\\byrm\\Desktop\\python projeleri\\asfly_projem\\singleclass_curriculum\\datasets\\ds_final_target_square",
+    "counts": {
+      "train": {
+        "images": 33601,
+        "labels": 33601
+      },
+      "val": {
+        "images": 4200,
+        "labels": 4200
+      },
+      "test": {
+        "images": 4199,
+        "labels": 4199
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+mavlink_bridge_node:
+  ros__parameters:
+    connection: udpin:127.0.0.1:14551
+    heartbeat_timeout_s: 30.0
+    telemetry_rate_hz: 20.0
+    command_timeout_s: 5.0
+    mode: GUIDED
+    source_system: 255
+    auto_connect: true

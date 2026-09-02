@@ -1,0 +1,8 @@
+path: datasets/ds_final_target_square
+train: images/train
+val: images/val
+test: images/test
+
+nc: 1
+names:
+  0: target_square

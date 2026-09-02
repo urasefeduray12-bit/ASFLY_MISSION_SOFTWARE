@@ -1,0 +1,9 @@
+source;share/teknofest_iha/hook/pythonpath.ps1
+source;share/teknofest_iha/hook/pythonpath.dsv
+source;share/teknofest_iha/hook/pythonpath.sh
+source;share/teknofest_iha/hook/ament_prefix_path.ps1
+source;share/teknofest_iha/hook/ament_prefix_path.dsv
+source;share/teknofest_iha/hook/ament_prefix_path.sh
+source;../../build/teknofest_iha/share/teknofest_iha/hook/pythonpath_develop.ps1
+source;../../build/teknofest_iha/share/teknofest_iha/hook/pythonpath_develop.dsv
+source;../../build/teknofest_iha/share/teknofest_iha/hook/pythonpath_develop.sh

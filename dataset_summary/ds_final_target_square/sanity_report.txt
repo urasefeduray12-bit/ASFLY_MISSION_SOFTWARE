@@ -1,0 +1,505 @@
+ASFLY final dataset sanity report
+======================================
+
+Total images: 42000
+Split counts:
+  train: 33601
+  val: 4200
+  test: 4199
+Stage counts:
+  stage2: 16000
+  stage4: 12000
+  stage3: 10000
+  stage1: 4000
+Target color counts:
+  red: 18100
+  blue: 18100
+  none: 5800
+Has target counts:
+  1: 36200
+  0: 5800
+Background type counts:
+  field_mixed: 21975
+  grass: 9857
+  soil: 3998
+  dry_grass: 2054
+  plain_light_gray: 1172
+  gray_noise: 871
+  plain_white: 787
+  plain_dark_gray: 706
+  matte_texture: 464
+  asphalt: 116
+Negative type counts:
+  none: 40100
+  red_long_panel: 430
+  blue_tarp_strip: 422
+  colored_cloth: 325
+  white_ground_mark: 306
+  round_object: 228
+  red_long_panel+blue_tarp_strip: 14
+  red_long_panel+red_long_panel: 13
+  red_long_panel+white_ground_mark: 13
+  blue_tarp_strip+red_long_panel: 12
+  white_ground_mark+red_long_panel: 11
+  white_ground_mark+blue_tarp_strip: 10
+  blue_tarp_strip+colored_cloth: 10
+  blue_tarp_strip+blue_tarp_strip: 10
+  blue_tarp_strip+white_ground_mark: 8
+  red_long_panel+round_object: 8
+  red_long_panel+colored_cloth: 8
+  colored_cloth+red_long_panel: 8
+  round_object+red_long_panel: 7
+  colored_cloth+blue_tarp_strip: 7
+  white_ground_mark+colored_cloth: 6
+  round_object+colored_cloth: 5
+  white_ground_mark+white_ground_mark: 5
+  colored_cloth+colored_cloth: 5
+  colored_cloth+white_ground_mark: 5
+  round_object+blue_tarp_strip: 5
+  round_object+white_ground_mark: 5
+  white_ground_mark+round_object: 4
+  colored_cloth+round_object: 4
+  round_object+round_object: 4
+  blue_tarp_strip+round_object: 2
+Blur level counts:
+  none: 36045
+  light: 4456
+  medium: 1499
+Lighting type counts:
+  none: 30000
+  normal: 4262
+  shadow: 2705
+  sunny: 2633
+  blur_light: 1200
+  glare: 1200
+Shadow level counts:
+  none: 38767
+  medium: 2446
+  light: 787
+Glare level counts:
+  none: 40800
+  medium: 1200
+Exposure level counts:
+  none: 30000
+  normal: 7495
+  mild_over: 4505
+Color shift level counts:
+  none: 41157
+  light: 843
+BBox px size counts:
+  0: 5800
+  86: 305
+  110: 292
+  80: 289
+  114: 283
+  52: 280
+  92: 280
+  106: 279
+  68: 278
+  48: 275
+  104: 275
+  94: 274
+  116: 273
+  50: 272
+  56: 272
+  118: 269
+  54: 268
+  96: 266
+  78: 266
+  82: 263
+  76: 261
+  58: 260
+  70: 260
+  108: 260
+  66: 258
+  88: 256
+  120: 255
+  102: 253
+  90: 252
+  74: 252
+  100: 252
+  112: 251
+  122: 249
+  84: 249
+  62: 249
+  64: 248
+  124: 247
+  60: 245
+  126: 242
+  98: 241
+  128: 239
+  46: 236
+  138: 227
+  72: 220
+  136: 219
+  130: 216
+  140: 216
+  134: 213
+  132: 212
+  156: 206
+  121: 205
+  150: 204
+  142: 204
+  125: 202
+  119: 202
+  162: 202
+  101: 200
+  34: 200
+  44: 198
+  113: 197
+  168: 195
+  107: 193
+  127: 193
+  117: 192
+  160: 190
+  172: 190
+  111: 190
+  144: 190
+  154: 190
+  148: 189
+  91: 186
+  152: 185
+  83: 183
+  109: 183
+  178: 182
+  146: 182
+  129: 181
+  170: 180
+  105: 180
+  115: 180
+  89: 179
+  95: 179
+  141: 179
+  103: 178
+  99: 176
+  174: 176
+  137: 174
+  93: 174
+  166: 173
+  133: 172
+  158: 170
+  77: 170
+  42: 169
+  164: 169
+  79: 169
+  131: 166
+  97: 166
+  180: 165
+  87: 164
+  184: 163
+  186: 163
+  161: 163
+  123: 161
+  40: 160
+  81: 159
+  182: 157
+  38: 157
+  67: 155
+  163: 155
+  75: 154
+  139: 154
+  135: 153
+  147: 153
+  175: 152
+  153: 152
+  188: 151
+  167: 151
+  63: 150
+  143: 150
+  85: 149
+  73: 148
+  59: 147
+  69: 146
+  149: 145
+  61: 143
+  176: 143
+  190: 142
+  159: 142
+  151: 140
+  57: 140
+  71: 140
+  51: 139
+  65: 139
+  36: 139
+  165: 138
+  145: 137
+  177: 135
+  55: 134
+  173: 134
+  181: 132
+  179: 129
+  53: 128
+  169: 127
+  191: 126
+  47: 125
+  198: 125
+  155: 125
+  192: 125
+  183: 125
+  157: 121
+  200: 121
+  185: 120
+  32: 119
+  194: 119
+  196: 118
+  171: 114
+  189: 113
+  202: 113
+  187: 110
+  193: 109
+  43: 106
+  195: 105
+  206: 103
+  199: 101
+  49: 97
+  208: 97
+  203: 95
+  212: 94
+  201: 93
+  204: 91
+  205: 91
+  45: 87
+  210: 86
+  215: 85
+  209: 82
+  220: 80
+  207: 79
+  214: 78
+  213: 77
+  216: 77
+  30: 76
+  39: 74
+  211: 71
+  228: 70
+  222: 70
+  197: 70
+  41: 69
+  217: 67
+  219: 65
+  250: 64
+  221: 62
+  226: 62
+  234: 61
+  242: 61
+  218: 61
+  246: 60
+  262: 58
+  223: 57
+  35: 57
+  252: 55
+  240: 54
+  224: 54
+  235: 53
+  33: 52
+  37: 52
+  244: 52
+  232: 50
+  233: 50
+  238: 49
+  243: 49
+  231: 49
+  236: 49
+  239: 47
+  254: 47
+  282: 46
+  227: 46
+  264: 46
+  251: 46
+  255: 45
+  270: 45
+  253: 45
+  268: 44
+  230: 43
+  257: 43
+  241: 43
+  237: 43
+  247: 43
+  256: 42
+  259: 42
+  248: 42
+  263: 41
+  276: 40
+  266: 40
+  260: 40
+  229: 40
+  258: 40
+  271: 38
+  290: 38
+  28: 38
+  265: 38
+  225: 37
+  288: 37
+  249: 36
+  245: 36
+  295: 36
+  275: 34
+  272: 33
+  274: 33
+  287: 33
+  279: 32
+  269: 32
+  261: 32
+  280: 30
+  278: 30
+  267: 29
+  31: 28
+  277: 28
+  296: 28
+  283: 28
+  273: 26
+  284: 25
+  281: 24
+  306: 24
+  297: 23
+  285: 23
+  299: 22
+  301: 22
+  292: 21
+  293: 21
+  300: 21
+  289: 21
+  312: 20
+  29: 20
+  307: 19
+  286: 19
+  298: 18
+  291: 18
+  316: 18
+  310: 17
+  294: 17
+  309: 17
+  311: 17
+  303: 15
+  302: 13
+  304: 12
+  308: 12
+  319: 11
+  317: 11
+  315: 10
+  313: 10
+  318: 10
+  328: 10
+  321: 10
+  322: 9
+  314: 9
+  323: 7
+  324: 7
+  305: 7
+  325: 6
+  320: 6
+  26: 6
+  326: 6
+  327: 5
+  330: 5
+  333: 4
+  332: 4
+  27: 4
+  329: 3
+  331: 2
+  337: 2
+  335: 2
+  339: 2
+  336: 1
+
+Split stage distribution:
+  [train]
+    stage2: 12800
+    stage4: 9601
+    stage3: 8000
+    stage1: 3200
+  [val]
+    stage2: 1600
+    stage4: 1200
+    stage3: 1000
+    stage1: 400
+  [test]
+    stage2: 1600
+    stage4: 1199
+    stage3: 1000
+    stage1: 400
+Split target_color distribution:
+  [train]
+    red: 14480
+    blue: 14480
+    none: 4641
+  [val]
+    red: 1811
+    blue: 1809
+    none: 580
+  [test]
+    blue: 1811
+    red: 1809
+    none: 579
+Split has_target distribution:
+  [train]
+    1: 28960
+    0: 4641
+  [val]
+    1: 3620
+    0: 580
+  [test]
+    1: 3620
+    0: 579
+Split blur_level distribution:
+  [train]
+    none: 28837
+    light: 3565
+    medium: 1199
+  [val]
+    none: 3605
+    light: 445
+    medium: 150
+  [test]
+    none: 3603
+    light: 446
+    medium: 150
+Split lighting_type distribution:
+  [train]
+    none: 24000
+    normal: 3410
+    shadow: 2164
+    sunny: 2107
+    blur_light: 960
+    glare: 960
+  [val]
+    none: 3000
+    normal: 426
+    shadow: 271
+    sunny: 263
+    glare: 120
+    blur_light: 120
+  [test]
+    none: 3000
+    normal: 426
+    shadow: 270
+    sunny: 263
+    glare: 120
+    blur_light: 120
+
+Label normalization:
+  converted label lines to class 0: 0
+  target_with_empty_label skipped: 0
+  empty_with_label skipped: 0
+
+Warnings:
+  - Duplicate image hash bulundu: 72 grup
+  -   image duplicate: stage1_000009.jpg, stage1_001282.jpg, stage1_002779.jpg, stage1_003990.jpg
+  -   image duplicate: stage1_000020.jpg, stage1_000273.jpg, stage1_000718.jpg, stage1_003262.jpg
+  -   image duplicate: stage1_000027.jpg, stage1_000112.jpg
+  -   image duplicate: stage1_000040.jpg, stage1_000284.jpg
+  -   image duplicate: stage1_000043.jpg, stage1_001227.jpg, stage1_001579.jpg, stage1_002147.jpg
+  -   image duplicate: stage1_000051.jpg, stage1_000252.jpg, stage1_001492.jpg, stage1_002008.jpg, stage1_003658.jpg
+  -   image duplicate: stage1_000072.jpg, stage1_001272.jpg, stage1_003216.jpg
+  -   image duplicate: stage1_000097.jpg, stage1_002700.jpg, stage1_003794.jpg
+  - Duplicate image+label hash bulundu: 72 grup
+  -   image+label duplicate: stage1_000009.jpg, stage1_001282.jpg, stage1_002779.jpg, stage1_003990.jpg
+  -   image+label duplicate: stage1_000020.jpg, stage1_000273.jpg, stage1_000718.jpg, stage1_003262.jpg
+  -   image+label duplicate: stage1_000027.jpg, stage1_000112.jpg
+  -   image+label duplicate: stage1_000040.jpg, stage1_000284.jpg
+  -   image+label duplicate: stage1_000043.jpg, stage1_001227.jpg, stage1_001579.jpg, stage1_002147.jpg
+  -   image+label duplicate: stage1_000051.jpg, stage1_000252.jpg, stage1_001492.jpg, stage1_002008.jpg, stage1_003658.jpg
+  -   image+label duplicate: stage1_000072.jpg, stage1_001272.jpg, stage1_003216.jpg
+  -   image+label duplicate: stage1_000097.jpg, stage1_002700.jpg, stage1_003794.jpg
+
+Errors:
+  none

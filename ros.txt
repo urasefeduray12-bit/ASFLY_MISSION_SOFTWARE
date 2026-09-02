@@ -1,0 +1,16 @@
+
+OBS preparation started.
+
+Capture these windows in OBS:
+  1. Gazebo overview:       Gazebo Sim
+  2. UAV camera overlay:    teknofest_iha_debug
+  3. ROS terminal:          TEKNOFEST_ROS
+  4. ArduPilot terminal:    TEKNOFEST_ARDUPILOT
+
+Mission manager is running in WAIT_START mode.
+Start OBS recording first, then run:
+  /home/omer/Downloads/yolosingleclass/asfly_singleclass_target_square_package/scripts/start_mission_for_obs.sh
+
+Debug viewer log:
+  /tmp/teknofest_logs/debug_viewer.log
+

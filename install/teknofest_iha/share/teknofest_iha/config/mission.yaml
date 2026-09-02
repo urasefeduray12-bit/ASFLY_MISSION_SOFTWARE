@@ -1,0 +1,46 @@
+mission_manager_node:
+  ros__parameters:
+    primary_target: blue_square
+    secondary_targets:
+      - red_square
+    takeoff_altitude_m: 3.0
+    altitude_tolerance_m: 0.5
+    restore_altitude_tolerance_m: 0.20
+    end_action: rtl
+    post_drop_hover_s: 3.0
+    lock_seconds: 1.5
+    lock_min_confidence: 0.55
+    approach_enabled: true
+    drop_altitude_m: 2.0
+    descend_speed_mps: 0.20
+    climb_speed_mps: 0.35
+    control_rate_hz: 10.0
+    search_speed_mps: 2.5
+    search_acceptance_radius_m: 0.5
+    lane_spacing_m: 6.0
+    align_max_speed_mps: 0.16
+    center_tolerance_px: 40
+    image_width: 640
+    image_height: 480
+    search_x_min: 0.0
+    search_x_max: 100.0
+    search_y_min: -12.0
+    search_y_max: 12.0
+    payload_dry_run: true
+    payload_servo: 9
+    payload_pwm: 1900
+    payload_reset_pwm: 1100
+    payload_hold_seconds: 0.8
+    coordinate_frame: gazebo_xy_swapped
+    target_specs_json: '{"red_square":{"center":[76.93,-10.94],"size":[1.0,1.0]},"blue_square":{"center":[31.42,-5.72],"size":[2.0,2.0]}}'
+
+safety_monitor_node:
+  ros__parameters:
+    enabled: true
+    x_min: -45.0
+    x_max: 145.0
+    y_min: -25.0
+    y_max: 25.0
+    warning_margin_m: 2.0
+    hard_margin_m: 0.5
+    coordinate_frame: gazebo_xy_swapped

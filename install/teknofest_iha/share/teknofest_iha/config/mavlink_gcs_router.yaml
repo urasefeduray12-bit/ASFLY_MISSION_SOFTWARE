@@ -1,0 +1,17 @@
+mavlink_bridge_node:
+  ros__parameters:
+    # Field/competition profile.
+    #
+    # MAVProxy owns the physical ArduPilot link and fans telemetry out to:
+    # - ROS 2 on UDP 14551
+    # - a ground-control station such as QGroundControl or Mission Planner on UDP 14550
+    #
+    # This keeps ROS independent from the GCS program. Mission Planner can run on a
+    # Windows laptop, QGroundControl can run on Linux, or no GUI can be used at all.
+    connection: udpin:127.0.0.1:14551
+    heartbeat_timeout_s: 30.0
+    telemetry_rate_hz: 20.0
+    command_timeout_s: 5.0
+    mode: GUIDED
+    source_system: 255
+    auto_connect: true

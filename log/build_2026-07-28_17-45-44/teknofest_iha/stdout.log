@@ -1,0 +1,23 @@
+running develop
+running egg_info
+writing teknofest_iha.egg-info/PKG-INFO
+writing dependency_links to teknofest_iha.egg-info/dependency_links.txt
+writing entry points to teknofest_iha.egg-info/entry_points.txt
+writing requirements to teknofest_iha.egg-info/requires.txt
+writing top-level names to teknofest_iha.egg-info/top_level.txt
+reading manifest file 'teknofest_iha.egg-info/SOURCES.txt'
+writing manifest file 'teknofest_iha.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/python3.12/site-packages/teknofest-iha.egg-link (link to .)
+Installing camera_frame_repeater_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing debug_viewer_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing fusion_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mavlink_bridge_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_console_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_manager_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing mission_video_recorder_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing perception_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+Installing safety_monitor_node script to /home/omer/teknofest_iha_2_gorev/install/teknofest_iha/lib/teknofest_iha
+
+Installed /home/omer/teknofest_iha_2_gorev/build/teknofest_iha
+running symlink_data

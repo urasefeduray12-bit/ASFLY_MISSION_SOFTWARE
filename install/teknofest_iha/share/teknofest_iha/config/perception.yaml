@@ -1,0 +1,15 @@
+perception_node:
+  ros__parameters:
+    camera_topic: /camera/raw
+    raw_detections_topic: /perception/raw_detections
+    debug_image_topic: /perception/debug_image
+    status_topic: /perception/status
+    model_path: models_archive/iha_best.pt
+    yolo_imgsz: 320
+    yolo_conf: 0.18
+    yolo_device: cpu
+    primary_target: blue_square
+    detect_targets:
+      - blue_square
+      - red_square
+    publish_debug_image: true

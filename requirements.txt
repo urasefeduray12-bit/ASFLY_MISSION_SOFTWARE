@@ -1,0 +1,302 @@
+# Teknofest IHA - Fedora + Distrobox + ROS 2 Jazzy ortam rehberi
+# =================================================================
+# Bu dosyanin iki gorevi var:
+# 1) ROS proje venv'i icin gecerli bir pip requirements dosyasidir.
+# 2) Fedora uzerinde bu projeyi calistirmak icin gereken pip disi buyuk
+#    programlari ve kurulum mantigini aciklar.
+#
+# Komut/rehber satirlari yorum olarak yazildi. pip, # ile baslayan satirlari
+# yok sayar. Gercek pip paketleri dosyanin en altindadir.
+#
+# Son test edilen mimari
+# ======================
+# Ana sistem:
+# - Fedora ana isletim sistemi olarak kalir.
+# - GPU surucusu, Wayland/X11 oturumu, terminal, USB/serial portlar ve home
+#   dizini Fedora tarafindadir.
+#
+# Container:
+# - Distrobox/Podman container adi: ros2-jazzy
+# - Container taban imaji: Ubuntu 24.04 LTS, Noble Numbat
+# - ROS surumu: ROS 2 Jazzy Jalisco
+# - Python surumu: Python 3.12
+# - Simulasyon gerekiyorsa Gazebo ailesi: Gazebo Harmonic / gz-sim
+#
+# Cok onemli kural:
+# - Terminal prompt'unda [ros2-jazzy] veya Distrobox/container isareti varsa
+#   zaten container icindesin. Orada tekrar `distrobox enter ros2-jazzy`
+#   calistirma. Bu komut Fedora host tarafinda vardir, Ubuntu container icinde
+#   olmak zorunda degildir.
+#
+# Neden Humble degil Jazzy?
+# =========================
+# Bu repo icin ROS 2 Jazzy kullan.
+# - Scriptler ve runbook'lar /opt/ros/jazzy/setup.bash dosyasini source ediyor.
+# - Ubuntu 24.04 dogal olarak Python 3.12 kullanir ve bu kurulumla uyumludur.
+# - Launch dosyalari ros_gz_bridge ve modern `gz sim` akisini kullaniyor.
+# - Humble daha cok Ubuntu 22.04 / Python 3.10 neslidir. Port edilebilir ama bu
+#   repository'nin bekledigi ortam Humble degil Jazzy'dir.
+#
+# Fedora host kurulumu
+# ====================
+# Bunlari container'a girmeden once Fedora uzerinde calistir:
+#   sudo dnf install -y distrobox podman
+#   distrobox create -n ros2-jazzy --image ubuntu:24.04
+#   distrobox enter ros2-jazzy
+#
+# NVIDIA notu:
+# - Gazebo/RViz cok yavas ise veya OpenGL llvmpipe/software rendering gosterirse,
+#   Fedora NVIDIA surucusu calisir durumdayken container'i NVIDIA destegiyle
+#   olustur:
+#   distrobox create -n ros2-jazzy --image ubuntu:24.04 --nvidia
+#
+# Pixhawk / serial port notu:
+# - /dev/ttyACM0 ve /dev/ttyUSB0 gibi serial cihazlar Fedora host tarafindadir.
+# - Fedora uzerinde izinleri `ls -l /dev/ttyACM* /dev/ttyUSB*` ile kontrol et.
+# - Fedora kullanicisini gerekli serial grubuna ekle. Bu grup kurulumuna gore
+#   genelde dialout, uucp veya lock olabilir.
+# - Grup degisikliginden sonra cikis yapip tekrar gir.
+#
+# Ubuntu 24.04 container kurulumu
+# ===============================
+# Bunlari ros2-jazzy container icinde calistir:
+#   sudo apt update
+#   sudo apt upgrade -y
+#   sudo apt install -y curl gnupg lsb-release software-properties-common locales git build-essential
+#   sudo apt install -y python3-venv python3-pip python-is-python3 xterm
+#   sudo add-apt-repository universe -y
+#
+# Ubuntu container icinde ROS 2 apt deposunu ekledikten sonra sunlari kur:
+#   ros-jazzy-desktop
+#   ros-jazzy-ros-gz
+#   ros-jazzy-cv-bridge
+#   python3-colcon-common-extensions
+#   python3-rosdep
+#
+# ROS kurulduktan sonra:
+#   source /opt/ros/jazzy/setup.bash
+#
+# Istege bagli shell kolayligi:
+# - Container icindeki ~/.bashrc veya ~/.zshrc dosyasina
+#   `source /opt/ros/jazzy/setup.bash` satirini ekleyebilirsin.
+# - Fedora host tarafinda ROS yoksa Fedora path'lerini ekleme.
+#
+# rosdep notu:
+# - Container icinde `sudo rosdep init` komutunu bir kez calistir.
+# - Varsayilan sources dosyasi zaten var derse sorun degil.
+# - Sonra `rosdep update` calistir.
+#
+# Bilerek iki ayri Python ortami kullaniliyor
+# ===========================================
+# 1) ROS proje venv'i:
+#      ~/teknofest_iha_2_gorev/.ros_venv
+#    ROS node'lari, OpenCV, YOLO, perception, fusion ve MAVLink bridge node bunu
+#    kullanir. Bu ortamda pymavlink de kurulu olmalidir.
+#
+# 2) ArduPilot venv'i:
+#      ~/venv-ardupilot
+#    ArduPilot sim_vehicle.py ve MAVProxy bunu kullanir.
+#
+# Bu iki ortami rastgele karistirma. Kurulum sirasinda tam olarak bu sorun
+# yasandi: pymavlink ~/venv-ardupilot icinde kurulu oldugu halde mavlink_bridge_node
+# .ros_venv kullandigi icin `pymavlink is not installed` hatasi verdi.
+#
+# ROS proje venv kurulumu
+# =======================
+# Container icinde calistir:
+#   cd ~/teknofest_iha_2_gorev
+#   python3 -m venv --system-site-packages .ros_venv
+#   source .ros_venv/bin/activate
+#   python -m pip install --upgrade pip setuptools wheel
+#   python -m pip install -r requirements.txt
+#   python -m pip install ultralytics --no-deps
+#
+# Neden --system-site-packages?
+# - rclpy ve cv_bridge gibi ROS Python modulleri /opt/ros altindan gelir.
+# - Venv'in bu sistem ROS paketlerini gorebilmesi gerekir.
+#
+# Neden numpy<2?
+# - Bu ortamdaki ROS Jazzy cv_bridge paketi NumPy 1.x ABI ile derlenmis durumda.
+# - NumPy 2.x su runtime hatasina sebep oldu:
+#   `A module that was compiled using NumPy 1.x cannot be run in NumPy 2.x`.
+# - cv_bridge/OpenCV NumPy 2 icin yeniden derlenmedikce NumPy'yi 2'nin altinda tut.
+#
+# Neden ultralytics ayri ve --no-deps ile kuruluyor?
+# - Proje cv2.TrackerCSRT_create icin opencv-contrib-python ister.
+# - Ultralytics bagimlilik olarak duz opencv-python cekebilir.
+# - Ultralytics'i --no-deps ile kurmak opencv-contrib-python paketinin kontrolu
+#   kaybetmesini engeller.
+#
+# ArduPilot venv kurulumu
+# =======================
+# Container icinde calistir:
+#   cd ~
+#   python3 -m venv ~/venv-ardupilot
+#   source ~/venv-ardupilot/bin/activate
+#   python -m pip install --upgrade pip setuptools wheel
+#   python -m pip install pexpect empy pyserial MAVProxy future pymavlink lxml
+#   export PATH=$HOME/venv-ardupilot/bin:$HOME/.local/bin:$PATH
+#   which mavproxy.py
+#
+# Beklenen MAVProxy yolu:
+#   /home/omer/venv-ardupilot/bin/mavproxy.py
+#
+# `python: command not found` gorursen:
+# - Ubuntu container icinde python-is-python3 kur veya python3 kullan.
+# - Temiz olusturulmus ve aktif edilmis venv icinde `python` normalde vardir.
+#
+# mavproxy.py var ama calismiyorsa:
+# - Venv bozulmus olabilir veya silinmis venv'e bakan eski bir symlink kalmistir.
+# - ~/venv-ardupilot ve ~/.local/bin/mavproxy.py dosyasini silip venv'i yeniden kur.
+#
+# ROS paketini derleme
+# ====================
+# Her zaman workspace kokunden derle, icteki teknofest_iha paket klasorunden degil:
+#   cd ~/teknofest_iha_2_gorev
+#   source /opt/ros/jazzy/setup.bash
+#   source .ros_venv/bin/activate
+#   rm -rf build install log
+#   colcon build --symlink-install
+#   source install/setup.bash
+#
+# `colcon build` 0 packages finished diyorsa:
+# - Muhtemelen ~/teknofest_iha_2_gorev/teknofest_iha icindesin.
+# - Bir ust dizine, yani ~/teknofest_iha_2_gorev konumuna cik ve orada derle.
+#
+# MAVLink baglanti ayari
+# ======================
+# Test edilen MAVProxy rotasi icin config/mavlink.yaml sunu kullanmali:
+#   connection: udpin:127.0.0.1:14551
+#
+# Neden?
+# - sim_vehicle.py, MAVProxy'yi 127.0.0.1:14551 cikisiyla baslatir.
+# - ROS mavlink_bridge_node bu UDP endpoint'i dinler.
+# - tcp:127.0.0.1:14551 kullanmak Connection refused hatasina sebep oldu.
+# - tcp:127.0.0.1:5760 dogrudan SITL master TCP portunu hedefler ve bu proje
+#   runbook'unda kullanilan MAVProxy rotasiyla uyusmaz.
+#
+# ROS proje venv icinden hizli MAVLink heartbeat kontrolu:
+#   cd ~/teknofest_iha_2_gorev
+#   source .ros_venv/bin/activate
+#   python -c "from pymavlink import mavutil; m=mavutil.mavlink_connection('udpin:127.0.0.1:14551'); print(m.wait_heartbeat(timeout=5))"
+#
+# Tam simulasyon calistirma sirasi
+# ================================
+# 1) Gazebo terminali, sadece gorsel/fizik simulasyon gerekiyorsa:
+#      source /opt/ros/jazzy/setup.bash
+#      export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH
+#      export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
+#      gz sim -r ~/ardupilot_gazebo/worlds/teknofest_bozkir.sdf
+#
+# 2) ArduPilot terminali:
+#      cd ~/ardupilot
+#      source ~/venv-ardupilot/bin/activate
+#      export PATH=$HOME/venv-ardupilot/bin:$HOME/.local/bin:$PATH
+#      python Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --no-rebuild --console --out=127.0.0.1:14551
+#
+#    Basari isaretleri:
+#      Detected vehicle 1:1 on link 0
+#      STABILIZE>
+#
+# 3) ROS terminali:
+#      cd ~/teknofest_iha_2_gorev
+#      source /opt/ros/jazzy/setup.bash
+#      source .ros_venv/bin/activate
+#      source install/setup.bash
+#      ros2 launch teknofest_iha full_sim.launch.py
+#
+# 4) Kontrol terminali:
+#      cd ~/teknofest_iha_2_gorev
+#      source /opt/ros/jazzy/setup.bash
+#      source .ros_venv/bin/activate
+#      source install/setup.bash
+#      ros2 topic echo /drone/state --once
+#
+# Beklenen /drone/state sonucu:
+#   {"connected": true, "armed": true/false, "mode": "GUIDED" veya "STABILIZE", ...}
+#
+# Sik yapilan hatalar ve cozumleri
+# ================================
+# Hata: `distrobox: command not found`
+# - Zaten container icindesin. Container icinde distrobox calistirma.
+#
+# Hata: `/opt/ros/jazzy/setup.bash: No such file or directory`
+# - Fedora host tarafindasin, Ubuntu container icinde degilsin veya ROS Jazzy
+#   container icinde kurulu degil.
+#
+# Hata: `.ros_venv/bin/activate: No such file or directory`
+# - ROS proje venv'ini ~/teknofest_iha_2_gorev icinden olustur.
+#
+# Hata: mavlink_bridge_node icinde `pymavlink is not installed`
+# - pymavlink'i sadece ~/venv-ardupilot icine degil, .ros_venv icine de kur.
+#
+# Hata: `No such file or directory: mavproxy.py`
+# - MAVProxy'yi ~/venv-ardupilot icine kur ve bu venv'i PATH'te one al.
+#
+# Hata: sim_vehicle.py icinde `No module named pexpect`
+# - ArduPilot Python yardimci paketlerini ~/venv-ardupilot icine kur.
+#
+# Hata: NumPy 1.x ile derlenmis modul NumPy 2.x ile calisamaz
+# - .ros_venv icinde NumPy'yi 2'nin altina indir:
+#   python -m pip install "numpy>=1.24,<2" --force-reinstall
+#
+# Hata: mavlink_bridge_node icinde `Connection refused`
+# - config/mavlink.yaml dosyasini kontrol et. MAVProxy rotasi icin
+#   udpin:127.0.0.1:14551 kullan.
+#
+# Hata: `MAVLink heartbeat timeout after 30.0s`
+# - ArduPilot/MAVProxy hazir degildir, endpoint yanlistir veya ROS, MAVProxy
+#   14551'e veri gondermeye baslamadan once acilmistir. Sirayla Gazebo,
+#   ArduPilot, sonra ROS baslat.
+#
+# Uyari: `Unable to import Axes3D`
+# - Gorev runtime'i icin genelde kritik degildir. Sistem/pip matplotlib
+#   paketlerinin karismasindan gelir ve sadece 3D plotting'i etkiler.
+#
+# Uyari: Gazebo libEGL / nvidia-drm / dri2 / dri3
+# - Simulasyon yavas ise container icinde GPU hizlandirmasini `glxinfo -B` ile
+#   kontrol et. Renderer llvmpipe ise Gazebo yazilim render kullaniyordur.
+#
+# Opsiyonel: Gazebo kullanmadan calisma
+# =====================================
+# Artik Gazebo kullanmayacaksan ROS node'lari ve MAVLink'i gercek Pixhawk veya
+# baska bir MAVLink kaynagi ile calistirmaya devam edebilirsin. Bu durumda:
+# - ROS 2 Jazzy, .ros_venv, pymavlink, OpenCV ve YOLO bagimliliklari kalmali.
+# - config/mavlink.yaml gercek linke gore ayarlanmali. Ornek: serial cihaz veya
+#   MAVProxy-router endpoint'i.
+# - config/perception.yaml icindeki camera topic gercek kamera ROS topic'i ile
+#   eslesmeli.
+#
+# .ros_venv icin gercek pip requirements
+# ======================================
+# Fedora/laptop/SITL kullanimi icin PyTorch CPU wheel'leri tercih edilir.
+# Bilerek PyPI CUDA wheel'leri isteniyorsa bu satir kaldirilabilir.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Temel runtime: perception, fusion, MAVLink bridge yardimcilari
+numpy>=1.24,<2
+opencv-contrib-python>=4.8,<5
+pymavlink>=2.4
+PyYAML>=6.0
+
+# YOLO / model inference
+# Bu dosyadan sonra ultralytics'i ayrica --no-deps ile kur. Bu, Fedora/ROS
+# ortaminda cv2.TrackerCSRT_create icin opencv-contrib-python paketini korur.
+#   python -m pip install ultralytics --no-deps
+torch>=2.2
+torchvision>=0.17
+ultralytics-thop>=2.0
+
+# Egitim, analiz, rapor ve dataset araclari
+pandas>=2.0
+matplotlib>=3.7
+pillow>=10.0
+tqdm>=4.66
+scipy>=1.10
+requests>=2.31
+psutil>=5.9
+polars>=0.20
+nvidia-ml-py>=12.0
+
+# Lokal testler
+pytest>=7.4
